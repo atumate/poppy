@@ -32,6 +32,7 @@ $(document).ready(function(){
 		$("#"+next_trick).click();
 	});
 
+
 	$("#base64encode").on("click", base64_encode);
 	$("#base64decode").on("click", base64_decode);
 
@@ -52,7 +53,7 @@ $(document).ready(function(){
 
 
 	$(".btn").on("click", function() {
-		reset_tip();
+		empty_tip();
 
 		$('#stack-trick').html( function(){
 			var joint='origin';
@@ -67,12 +68,33 @@ $(document).ready(function(){
 
 
 
-	init_view=function(){
+	init_view=function(){	
+		$("#btn-reset").attr("disabled", 
+			(stack_redo.length || stack_play.length)?false:true);
+		$("#btn-origin").attr("disabled", stack_undo.length?false:true);
 		$("#btn-undo").attr("disabled", stack_undo.length?false:true);
 		$("#btn-redo").attr("disabled", stack_redo.length?false:true);
 	}
 
+	reset=function(){
+		stack_undo = [];
+		stack_redo = [];
+		stack_play = [];
+		$("#btn-fake").click();
+		$("#play").val('');
+		$("#stack-trick").html('');
+	}
 
+	origin=function(){
+
+		while(stack_undo.length){
+			$("#btn-undo").click();
+		}
+	}
+
+
+	$("#btn-reset").on("click", reset);
+	$("#btn-origin").on("click", origin);
 	init_view();
 
 	//test();
@@ -85,9 +107,10 @@ $(document).ready(function(){
 
 
 
-function test(){
-	$("#base64encode").click();
-}
+
+
+
+
 
 
 function base64_encode(){
@@ -108,7 +131,7 @@ function push_stack(ele,stack){
 	stack.push(ele); 
 }
 
-function reset_tip(){
+function empty_tip(){
 	$('.tip').html('');
 }
 
