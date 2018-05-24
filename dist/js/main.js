@@ -1,37 +1,36 @@
+/*
+1. event add order is vital, ele's bind order relu on it
+
+
+*/
 
 $(document).ready(function(){
-	var stack = [];
-      
+	var stack_undo = [];
+	var stack_redo = [];
+	var stack_play = [];
 
+	$(".btn-trick").on( "click", function(e) {
+		push_stack($(this)[0].id,stack_undo);
+		push_stack($('#play').val(),stack_play);
 
-	$(".btn-trick, #btn-undo, #btn-redo").on("click", reset_tip);
-
-	$(".btn-trick").on( "click", function() {
-		console.log( $(this)[0].id    );
-		push_stack($(this)[0].id,stack);
-
-
-
-		$('#stack-trick').html( function(){
-			console.log(stack);
-			var joint='';
-			for (var i = 0; i < stack.length; i++) {
-				joint = '>' + stack[i] ;
-			}
-
-			return joint;
+		if(e.hasOwnProperty('originalEvent')){
+			stack_redo = [];
 		}
 
-		);
-
-		console.log(stack);
 	});
+
 
 	$("#btn-undo").on("click", function() {
-		$("#"+stack.pop()).click();
+		last_trick=stack_undo.pop();
+		last_play=stack_play.pop(); 
+		stack_redo.push(last_trick);
+		$('#play').val(last_play);
 	});
 
-	$("#btn-redo").on("click", redo);
+	$("#btn-redo").on("click",function() {
+		next_trick=stack_redo.pop();
+		$("#"+next_trick).click();
+	});
 
 	$("#base64encode").on("click", base64_encode);
 	$("#base64decode").on("click", base64_decode);
@@ -41,14 +40,43 @@ $(document).ready(function(){
 	$(window).on("error", function(evt) {
 		var e = evt.originalEvent; 
 		if (e.message) { 
-			$('.tip').html(e.message );		 
+			$('.tip').html(e.message );		
+			stack_undo.pop()
+			stack_play.pop() 
+			init_view();
 		} else {
 			alert("Error:\n\t" + e.type + "\nElement:\n\t" + (e.srcElement || e.target));
 		}
 	});
 
 
-	test();
+
+	$(".btn").on("click", function() {
+		reset_tip();
+
+		$('#stack-trick').html( function(){
+			var joint='origin';
+			for (var i = 0; i < stack_undo.length; i++) {
+				joint = joint + '>' + stack_undo[i] + ' ' ;
+			}
+			return joint;
+		});
+		
+		init_view();
+	});
+
+
+
+	init_view=function(){
+		$("#btn-undo").attr("disabled", stack_undo.length?false:true);
+		$("#btn-redo").attr("disabled", stack_redo.length?false:true);
+	}
+
+
+	init_view();
+
+	//test();
+
 
 });
 
@@ -56,9 +84,6 @@ $(document).ready(function(){
 
 
 
-function redo(stack){
-	$("#base64encode").click();
-}
 
 function test(){
 	$("#base64encode").click();
@@ -68,7 +93,7 @@ function test(){
 function base64_encode(){
 	come = $('#play').val();
 	go=btoa(come)
-	$('#play').val(go);	
+	$('#play').val(go);
 }
 
 
@@ -79,8 +104,8 @@ function base64_decode(){
 }
 
 
-function push_stack(trick,stack){
-	stack.push(trick); 
+function push_stack(ele,stack){
+	stack.push(ele); 
 }
 
 function reset_tip(){
