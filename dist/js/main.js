@@ -15,6 +15,10 @@ $(document).ready(function(){
 
 		if(e.hasOwnProperty('originalEvent')){
 			stack_redo = [];
+			$("#div-preview-all").html('');
+
+		}else{
+			stack_undo = [];
 		}
 
 	});
@@ -33,8 +37,7 @@ $(document).ready(function(){
 	});
 
 
-	$("#base64encode").on("click", base64_encode);
-	$("#base64decode").on("click", base64_decode);
+
 
 	
 
@@ -83,10 +86,10 @@ $(document).ready(function(){
 		$("#btn-fake").click();
 		$("#play").val('');
 		$("#stack-trick").html('');
+		$("#div-preview-all").html('');
 	}
 
 	origin=function(){
-
 		while(stack_undo.length){
 			$("#btn-undo").click();
 		}
@@ -97,12 +100,118 @@ $(document).ready(function(){
 	$("#btn-origin").on("click", origin);
 	init_view();
 
-	//test();
+
+
+
+
+	$("#btn-preview-all").click(function() {
+		var tricks=[]
+		$(".btn-trick").each(function() {
+			
+			tricks.push(this.id);
+		});
+		console.log(tricks);
+
+		var html_build='',temp='',origin_val=$('#play').val();
+		for (var i = 0; i < tricks.length; i++) {
+
+			var no_error=true;
+
+			try {
+				$("#"+tricks[i]).click();;
+			}
+			catch(err) {
+				no_error=false;
+				console.log(err);
+				temp='<span class="tip">'+err+'</span>';
+			}
+
+			if (no_error) {
+				temp=$('#play').val();
+			}
+			
+			$('#play').val(origin_val);
+			html_build = html_build +'<div>' +tricks[i] +': '+ temp+'</div>';
+		}
+
+		$("#div-preview-all").html(html_build);
+
+
+
+	});
+
+	$('#play').keydown(function (e) {
+		if (e.ctrlKey && e.keyCode == 13) {
+			$("#btn-preview-all").click();
+		}
+	});
+
+	$('#play').on('input',function (e) {
+
+		if($("#sw-realtime").is(':checked')){
+			$("#btn-preview-all").click();
+		}
+		else{
+
+		}
+			
+		
+			
+		
+	});
+
+
+
+
+	$("#base64encode").on("click", base64_encode);
+	$("#base64decode").on("click", base64_decode);
+
+
+	$("#url-encode").on("click", function(){
+		come = $('#play').val();
+		go=encodeURIComponent(come)
+		$('#play').val(go);	
+	});
+
+	$("#url-decode").on("click", function(){
+		$('#play').val(decodeURIComponent($('#play').val()));	
+	});
+
+
+	$("#html-entity-encode").on("click", function(){
+		come = $('#play').val();
+		go=come.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+			return '&#'+i.charCodeAt(0)+';';
+		});
+		$('#play').val(go);	
+	});
+
+	$("#html-entity-decode").on("click", function(){
+		$('#play').val(decodeHTMLEntities($('#play').val()));
+	});
+
+	test();
 
 
 });
 
 
+function test(){
+	$("#btn-preview-all").click();
+}
+
+
+
+function decodeHTMLEntities (str) {
+	if(str && typeof str === 'string') {
+
+		str = str.replace(/<script[^>]*>([\S\s]*?)<\/script>/gmi, '');
+		str = str.replace(/<\/?\w(?:[^"'>]|"[^"]*"|'[^']*')*>/gmi, '');
+		var decoded = $("<div/>").html(str).text();
+	}
+
+	return decoded;
+}
 
 
 
@@ -125,6 +234,16 @@ function base64_decode(){
 	go=atob(come)
 	$('#play').val(go);	
 }
+
+
+
+
+
+
+
+
+
+
 
 
 function push_stack(ele,stack){
