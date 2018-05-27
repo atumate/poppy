@@ -15,9 +15,10 @@ $(document).ready(function(){
 
 		if(e.hasOwnProperty('originalEvent')){
 			stack_redo = [];
-			$("#div-preview-all").html('');
+			$("#btn-preview-all").click();
 
-		}else{
+		}
+		else{
 			stack_undo = [];
 		}
 
@@ -105,9 +106,8 @@ $(document).ready(function(){
 
 
 	$("#btn-preview-all").click(function() {
-		var tricks=[]
+		var tricks=[];
 		$(".btn-trick").each(function() {
-			
 			tricks.push(this.id);
 		});
 		console.log(tricks);
@@ -129,14 +129,19 @@ $(document).ready(function(){
 			if (no_error) {
 				temp=$('#play').val();
 			}
+
+
+
+			if (tricks[i]=='html-entity-encode') {
+				temp ='<span class="tip">Need manually!</span>';
+			}
 			
-			$('#play').val(origin_val);
 			html_build = html_build +'<div>' +tricks[i] +': '+ temp+'</div>';
+
+			$('#play').val(origin_val);
 		}
 
 		$("#div-preview-all").html(html_build);
-
-
 
 	});
 
@@ -146,18 +151,18 @@ $(document).ready(function(){
 		}
 	});
 
-	$('#play').on('input',function (e) {
 
+
+	$('#sw-realtime').change(function(){
+		if($(this).is(':checked')) {
+			$("#btn-preview-all").click();
+		} 
+	});
+
+	$('#play').on('input',function (e) {
 		if($("#sw-realtime").is(':checked')){
 			$("#btn-preview-all").click();
 		}
-		else{
-
-		}
-			
-		
-			
-		
 	});
 
 
